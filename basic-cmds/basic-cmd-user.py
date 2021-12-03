@@ -17,6 +17,13 @@ class PrefixUser(commands.Cog):
     @commands.command(name="user")
     async def user(self, ctx, *, username: str):
 
+        """Gets information about a HackerOne user.
+
+        Parameters
+        ----------
+        username: The username of the profile to display.
+        """
+
         userjson = (
             requests.get(
                 f"https://api.hackerone.com/v1/users/{username}",
@@ -122,7 +129,7 @@ class PrefixUser(commands.Cog):
         embed.set_thumbnail(url=userpic)
 
         embed.set_footer(
-            text=f"Requested by {ctx.author.name}", 
+            text=f"Requested by {ctx.author.name}",
             icon_url=ctx.author.avatar.url,
         )
 

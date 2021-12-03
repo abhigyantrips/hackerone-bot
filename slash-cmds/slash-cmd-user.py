@@ -14,10 +14,15 @@ class SlashUser(commands.Cog):
     def __init__(self, client):
         self.client = client
 
-    @commands.slash_command(
-        name="user", description="Get information about a HackerOne user."
-    )
+    @commands.slash_command()
     async def user(self, ctx, *, username: str):
+
+        """Gets information about a HackerOne user.
+
+        Parameters
+        ----------
+        username: The username of the profile to display.
+        """
 
         userjson = (
             requests.get(
@@ -130,7 +135,7 @@ class SlashUser(commands.Cog):
         embed.set_thumbnail(url=userpic)
 
         embed.set_footer(
-            text=f"Requested by {ctx.author.name}", 
+            text=f"Requested by {ctx.author.name}",
             icon_url=ctx.author.avatar.url,
         )
 
