@@ -41,7 +41,7 @@ class SlashUtils(commands.Cog):
         )
 
         embed.add_field(
-            name="",
+            name="Commands",
             value="```\n!h1 help (/help)\n└── Returns this embed.\n\n!h1 ping (/ping)\n└── Returns the latency of the HackerOne bot.\n\n!h1 user <username> (/user)\n└── Gets information about a HackerOne user.\n\n!h1 reports <id> (/reports)\n└── Gets a report from HackerOne, as per specified ID.```",
             inline=False,
         )
