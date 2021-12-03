@@ -30,19 +30,13 @@ class SlashUtils(commands.Cog):
             timestamp=datetime.datetime.now(),
         )
 
-        embed.set_author(
-            name="Abhigyan Trips",
-            url="https://github.com/abhigyantrips/hackerone-bot",
-            icon_url="https://i.imgur.com/Q0Zj5V4.jpg",
-        )
-
         embed.set_thumbnail(
             url="https://i.imgur.com/NSuNpoX.png",
         )
 
         embed.add_field(
             name="Commands",
-            value="```\n!h1 help (/help)\n└── Returns this embed.\n\n!h1 ping (/ping)\n└── Returns the latency of the HackerOne bot.\n\n!h1 user <username> (/user)\n└── Gets information about a HackerOne user.\n\n!h1 reports <id> (/reports)\n└── Gets a report from HackerOne, as per specified ID.```",
+            value="```\n(/help) !h1 help\n└── Returns this embed.\n\n(/ping) !h1 ping\n└── Returns the latency of the HackerOne bot.\n\n(/user) !h1 user <username>\n└── Gets information about a HackerOne user.\n\n(/reports) !h1 reports <id>\n└── Gets information about a HackerOne report.```",
             inline=False,
         )
 
