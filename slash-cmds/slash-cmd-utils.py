@@ -20,6 +20,13 @@ class SlashUtils(commands.Cog):
         await ctx.response.send_message(
             f"<:h1hourglass:915993528813912074>  **Bot latency is **`{round(self.client.latency*1000)}ms`"
         )
+    
+    @h1.sub_command(
+        name="help",
+        description="Returns the help message for the bot.",
+    )
+    async def help(self, ctx):
+        await ctx.response.send_message("The bot is currently under development.")
 
 def setup(client):
     client.add_cog(SlashUtils(client))
