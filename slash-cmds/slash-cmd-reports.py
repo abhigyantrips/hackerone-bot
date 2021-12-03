@@ -17,7 +17,7 @@ class SlashReports(commands.Cog):
     @commands.slash_command()
     async def reports(self, ctx, id: str):
 
-        """Gets a report from HackerOne, as per specified ID.
+        """Gets information about a HackerOne report.
 
         Parameters
         ----------
