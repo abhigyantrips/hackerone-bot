@@ -10,9 +10,7 @@ import os
 client = commands.Bot(
     command_prefix="!h1",
     help_command=None,
-    test_guilds=[int(os.getenv("TEST_GUILD"))],
     strip_after_prefix=True,
-    reload=True,
 )
 
 print("---------- BASIC COMMANDS ----------")
