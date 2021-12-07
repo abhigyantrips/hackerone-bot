@@ -9,6 +9,8 @@ import dateutil.parser as dp
 auth = (os.getenv("HACKERONE_USERNAME"), os.getenv("HACKERONE_API_KEY"))
 headers = {"Accept": "application/json"}
 
+default_avatar = "https://hackerone.com/assets/avatars/default-71a302d706457f3d3a31eb30fa3e73e6cf0b1d677b8fa218eaeaffd67ae97918.png"
+
 
 class PrefixReports(commands.Cog):
     def __init__(self, client):
