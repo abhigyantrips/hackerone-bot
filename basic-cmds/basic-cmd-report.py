@@ -115,7 +115,7 @@ class PrefixReports(commands.Cog):
         )
         embed.add_field(
             name="Disclosed at",
-            value=report_close_at,
+            value=report_closed_at,
             inline=True,
         )
         embed.add_field(
