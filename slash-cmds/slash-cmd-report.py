@@ -112,7 +112,7 @@ class SlashReports(commands.Cog):
 
         embed.add_field(
             name="Created at",
-            value=reporter_create_at,
+            value=report_create_at,
             inline=True,
         )
         embed.add_field(
