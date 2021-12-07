@@ -9,6 +9,8 @@ import dateutil.parser as dp
 auth = (os.getenv("HACKERONE_USERNAME"), os.getenv("HACKERONE_API_KEY"))
 headers = {"Accept": "application/json"}
 
+default_avatar = "https://hackerone.com/assets/avatars/default-71a302d706457f3d3a31eb30fa3e73e6cf0b1d677b8fa218eaeaffd67ae97918.png"
+
 
 class SlashReports(commands.Cog):
     def __init__(self, client):
@@ -31,6 +33,8 @@ class SlashReports(commands.Cog):
                 headers=headers,
             )
         ).json()
+
+        # API Error Handling
 
         try:
             if reportjson["errors"][0]["status"] == 401:
@@ -66,71 +70,69 @@ class SlashReports(commands.Cog):
         except KeyError:
             pass
 
-        if (
-            "default"
-            in reportjson["data"]["relationships"]["reporter"]["data"]["attributes"][
-                "profile_picture"
-            ]["62x62"]
-        ):
-            reporterpic = "https://hackerone.com/assets/avatars/default-71a302d706457f3d3a31eb30fa3e73e6cf0b1d677b8fa218eaeaffd67ae97918.png"
-        else:
-            reporterpic = reportjson["data"]["relationships"]["reporter"]["data"][
-                "attributes"
-            ]["profile_picture"]["62x62"]
+        # Report Info
 
-        bounty = 0
+        report_title = reportjson["data"]["attributes"]["title"]
+        report_state = reportjson["data"]["attributes"]["state"].capitalize()
+        report_handle = reportjson["data"]["relationships"]["program"]["data"]["attributes"]["handle"] or "-"
+        report_rating = (reportjson["data"]["relationships"]["severity"]["data"]["attributes"]["rating"] or "-").capitalize()
+        report_create_at = f"<t:{round(dp.parse(reportjson['data']['attributes']['created_at']).timestamp())}:f>" or "-"
+        report_closed_at = f"<t:{round(dp.parse(reportjson['data']['attributes']['disclosed_at']).timestamp())}:f>" or "-"
+
+        # Reporter Info
+
+        reporter_name = reportjson["data"]["relationships"]["reporter"]["data"]["attributes"]["name"]
+        reporter_user = reportjson["data"]["relationships"]["reporter"]["data"]["attributes"]["username"]
+        reporter_avatar = reportjson["data"]["relationships"]["reporter"]["data"]["attributes"]["profile_picture"]["62x62"]
+        if ("default" in reporter_avatar) or (len(reporter_avatar) >= 2048):
+            reporter_avatar = default_avatar
+        reporter_profile = f"https://hackerone.com/{reporter_user}"
+
+        # Bounty (If disclosed)
+
+        bounty_crr = reportjson["data"]["relationships"]["bounties"]["data"][0]["attributes"]["awarded_currency"] or ""
+        bounty_amt = 0
         for amount in reportjson["data"]["relationships"]["bounties"]["data"]:
-            bounty += float(amount["attributes"]["awarded_amount"])
+            bounty_amt += float(amount["attributes"]["awarded_amount"])
+
+        # Embed Creation
 
         embed = disnake.Embed(
-            title=f"#{id} - {reportjson['data']['attributes']['title']} ({(reportjson['data']['attributes']['state']).capitalize()})",
+            title=f"#{id} - {report_title} ({report_state})",
             color=0x303136,
             timestamp=datetime.datetime.now(),
             url=f"https://hackerone.com/reports/{id}",
         )
 
         embed.set_author(
-            name=f"{reportjson['data']['relationships']['reporter']['data']['attributes']['name']} ({reportjson['data']['relationships']['reporter']['data']['attributes']['username']})",
-            icon_url=reporterpic,
-            url=f"https://hackerone.com/{reportjson['data']['relationships']['reporter']['data']['attributes']['username']}",
+            name=f"{reporter_name} ({reporter_user})",
+            icon_url=reporter_avatar,
+            url=reporter_profile,
         )
 
         embed.add_field(
             name="Created at",
-            value=f"<t:{round(dp.parse(reportjson['data']['attributes']['created_at']).timestamp())}:f>"
-            or "-",
+            value=reporter_create_at,
             inline=True,
         )
         embed.add_field(
             name="Disclosed at",
-            value=f"<t:{round(dp.parse(reportjson['data']['attributes']['disclosed_at']).timestamp())}:f>"
-            or "-",
+            value=report_close_at,
             inline=True,
         )
         embed.add_field(
             name="Program",
-            value=f"[@{reportjson['data']['relationships']['program']['data']['attributes']['handle']}](https://hackerone.com/{reportjson['data']['relationships']['program']['data']['attributes']['handle']})",
+            value=f"[@{report_handle}](https://hackerone.com/{report_handle})",
             inline=False,
         )
         embed.add_field(
             name="Severity",
-            value=(
-                reportjson["data"]["relationships"]["severity"]["data"]["attributes"][
-                    "rating"
-                ]
-                or "-"
-            ).capitalize(),
+            value=report_rating,
             inline=True,
         )
         embed.add_field(
             name="Bounty",
-            value=(
-                reportjson["data"]["relationships"]["bounties"]["data"][0][
-                    "attributes"
-                ]["awarded_currency"]
-                or ""
-            )
-            + f" {bounty}",
+            value=(f"{bounty_crr} {bounty_amt}"),
             inline=True,
         )
 
