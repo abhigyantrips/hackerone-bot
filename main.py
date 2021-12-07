@@ -36,9 +36,7 @@ for filename in os.listdir("./slash-cmds"):
 async def on_ready():
     await client.change_presence(
         status=disnake.Status.idle,
-        activity=disnake.Activity(
-            type=disnake.ActivityType.watching, name="bug bounties."
-        ),
+        activity=disnake.Activity(type=disnake.ActivityType.watching, name="bug bounties."),
     )
     print(f"The bot is online. \nLogged in as {client.user}({client.user.id}).")
 
