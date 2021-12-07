@@ -34,29 +34,17 @@ class PrefixUser(commands.Cog):
 
         try:
             if userjson["errors"][0]["status"] == 401:
-                return await ctx.send(
-                    f"<:h1cross:916006021909065728> **The bot is unauthorized to conduct this action.**"
-                )
+                return await ctx.send(f"<:h1cross:916006021909065728> **The bot is unauthorized to conduct this action.**")
             elif userjson["errors"][0]["status"] == 403:
-                return await ctx.send(
-                    f"<:h1cross:916006021909065728> **The bot is forbidden to conduct this action.**"
-                )
+                return await ctx.send(f"<:h1cross:916006021909065728> **The bot is forbidden to conduct this action.**")
             elif userjson["errors"][0]["status"] == 404:
-                return await ctx.send(
-                    f"<:h1cross:916006021909065728> **Could not find HackerOne user: `{username}`.**"
-                )
+                return await ctx.send(f"<:h1cross:916006021909065728> **Could not find HackerOne user: `{username}`.**")
             elif userjson["errors"][0]["status"] == 429:
-                return await ctx.send(
-                    f"<:h1cross:916006021909065728> **The bot is currently being ratelimited. Please try again later.**"
-                )
+                return await ctx.send(f"<:h1cross:916006021909065728> **The bot is currently being ratelimited. Please try again later.**")
             elif userjson["errors"][0]["status"] == 500:
-                return await ctx.send(
-                    f"<:h1cross:916006021909065728> **There was an internal server error. Please try again later.**"
-                )
+                return await ctx.send(f"<:h1cross:916006021909065728> **There was an internal server error. Please try again later.**")
             elif userjson["errors"][0]["status"] == 503:
-                return await ctx.send(
-                    f"<:h1cross:916006021909065728> **The HackerOne API is currently offline. Please try again later.**"
-                )
+                return await ctx.send(f"<:h1cross:916006021909065728> **The HackerOne API is currently offline. Please try again later.**")
         except KeyError:
             pass
 
@@ -119,10 +107,7 @@ class PrefixUser(commands.Cog):
         )
         embed.add_field(
             name="Joined",
-            value=(
-                f"<t:{round(dp.parse(userjson['data']['attributes']['created_at']).timestamp())}:f>"
-                or "-"
-            ),
+            value=(f"<t:{round(dp.parse(userjson['data']['attributes']['created_at']).timestamp())}:f>" or "-"),
             inline=False,
         )
 

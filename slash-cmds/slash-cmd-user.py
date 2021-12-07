@@ -125,10 +125,7 @@ class SlashUser(commands.Cog):
         )
         embed.add_field(
             name="Joined",
-            value=(
-                f"<t:{round(dp.parse(userjson['data']['attributes']['created_at']).timestamp())}:f>"
-                or "-"
-            ),
+            value=(f"<t:{round(dp.parse(userjson['data']['attributes']['created_at']).timestamp())}:f>" or "-"),
             inline=False,
         )
 
