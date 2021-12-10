@@ -44,7 +44,7 @@ class SlashReports(commands.Cog):
                 )
             elif reportjson["errors"][0]["status"] == 403:
                 return await ctx.send(
-                    f"<:h1cross:916006021909065728> **The bot is forbidden to conduct this action.**",
+                    f"<:h1cross:916006021909065728> **The bot is forbidden to access this report. Please confirm if the report is public/disclosed.**",
                     ephemeral=True,
                 )
             elif reportjson["errors"][0]["status"] == 404:
