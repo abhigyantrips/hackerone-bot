@@ -9,6 +9,7 @@ import dateutil.parser as dp
 auth = (os.getenv("HACKERONE_USERNAME"), os.getenv("HACKERONE_API_KEY"))
 headers = {"Accept": "application/json"}
 
+default_avatar = "https://hackerone.com/assets/avatars/default-71a302d706457f3d3a31eb30fa3e73e6cf0b1d677b8fa218eaeaffd67ae97918.png"
 
 class SlashUser(commands.Cog):
     def __init__(self, client):
@@ -31,6 +32,8 @@ class SlashUser(commands.Cog):
                 headers=headers,
             )
         ).json()
+
+        # API Error Handilng
 
         try:
             if userjson["errors"][0]["status"] == 401:
@@ -66,26 +69,36 @@ class SlashUser(commands.Cog):
         except KeyError:
             pass
 
-        if "default" in userjson["data"]["attributes"]["profile_picture"]["62x62"]:
-            userpic = "https://hackerone.com/assets/avatars/default-71a302d706457f3d3a31eb30fa3e73e6cf0b1d677b8fa218eaeaffd67ae97918.png"
-        else:
-            userpic = userjson["data"]["attributes"]["profile_picture"]["62x62"]
+        # User Info
+
+        user_name = userjson['data']['attributes']['name'] or "-"
+        user_rept = userjson["data"]["attributes"]["reputation"] or "-"
+        user_sigl = round((userjson["data"]["attributes"]["signal"] or 0), 2)
+        user_impt = round((userjson["data"]["attributes"]["impact"] or 0), 2)
+        user_bio = userjson["data"]["attributes"]["bio"] or "-"
+        user_web = userjson["data"]["attributes"]["website"] or "-"
+        user_avt = userjson["data"]["attributes"]["profile_picture"]["62x62"]
+        if ("default" in user_avt) or (len(user_avt) >= 2048):
+            user_avt = default_avatar
+        user_create = f"<t:{round(dp.parse(userjson['data']['attributes']['created_at']).timestamp())}:f>" or "-"
+
+        # Embed Creation
 
         embed = disnake.Embed(
-            title=f"HackerOne User",
+            title=f"HackerOne Profile",
             color=0x303136,
             timestamp=datetime.datetime.now(),
         )
 
         embed.set_author(
-            name=f"{userjson['data']['attributes']['name']} ({userjson['data']['attributes']['username']})",
+            name=f"{user_name} ({username})",
             url=f"https://hackerone.com/{username}",
-            icon_url=userpic,
+            icon_url=user_avt,
         )
 
         embed.add_field(
             name="Name",
-            value=f"{userjson['data']['attributes']['name']}",
+            value=f"{user_name}",
             inline=True,
         )
         embed.add_field(
@@ -100,36 +113,41 @@ class SlashUser(commands.Cog):
         )
         embed.add_field(
             name="Reputation",
-            value=(userjson["data"]["attributes"]["reputation"] or "-"),
+            value=user_rept,
             inline=True,
         )
         embed.add_field(
             name="Signal",
-            value=round(userjson["data"]["attributes"]["signal"] or 0),
+            value=user_sigl,
             inline=True,
         )
         embed.add_field(
             name="Impact",
-            value=round(userjson["data"]["attributes"]["impact"] or 0),
+            value=user_impt,
             inline=True,
         )
         embed.add_field(
             name="Bio",
-            value=(userjson["data"]["attributes"]["bio"] or "-"),
+            value=user_bio,
             inline=False,
         )
         embed.add_field(
             name="Website",
-            value=(userjson["data"]["attributes"]["website"] or "-"),
+            value=user_web,
             inline=False,
         )
         embed.add_field(
             name="Joined",
-            value=(f"<t:{round(dp.parse(userjson['data']['attributes']['created_at']).timestamp())}:f>" or "-"),
+            value=user_create,
             inline=False,
         )
 
-        embed.set_thumbnail(url=userpic)
+        embed.set_thumbnail(url=user_avt)
+
+        embed.set_footer(
+            text=f"Requested by {ctx.author.name}",
+            icon_url=ctx.author.avatar.url,
+        )
 
         embed.set_footer(
             text=f"Requested by {ctx.author.name}",

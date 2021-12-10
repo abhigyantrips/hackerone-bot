@@ -9,6 +9,7 @@ import dateutil.parser as dp
 auth = (os.getenv("HACKERONE_USERNAME"), os.getenv("HACKERONE_API_KEY"))
 headers = {"Accept": "application/json"}
 
+default_avatar = "https://hackerone.com/assets/avatars/default-71a302d706457f3d3a31eb30fa3e73e6cf0b1d677b8fa218eaeaffd67ae97918.png"
 
 class PrefixUser(commands.Cog):
     def __init__(self, client):
@@ -32,42 +33,54 @@ class PrefixUser(commands.Cog):
             )
         ).json()
 
+        # API Error Handling
+
         try:
             if userjson["errors"][0]["status"] == 401:
-                return await ctx.send(f"<:h1cross:916006021909065728> **The bot is unauthorized to conduct this action.**")
+                return await ctx.send(f"<:h1cross:916006021909065728> **The bot is unauthorized to conduct this action.**", delete_after=10,)
             elif userjson["errors"][0]["status"] == 403:
-                return await ctx.send(f"<:h1cross:916006021909065728> **The bot is forbidden to conduct this action.**")
+                return await ctx.send(f"<:h1cross:916006021909065728> **The bot is forbidden to conduct this action.**", delete_after=10,)
             elif userjson["errors"][0]["status"] == 404:
-                return await ctx.send(f"<:h1cross:916006021909065728> **Could not find HackerOne user: `{username}`.**")
+                return await ctx.send(f"<:h1cross:916006021909065728> **Could not find HackerOne user: `{username}`.**", delete_after=10,)
             elif userjson["errors"][0]["status"] == 429:
-                return await ctx.send(f"<:h1cross:916006021909065728> **The bot is currently being ratelimited. Please try again later.**")
+                return await ctx.send(f"<:h1cross:916006021909065728> **The bot is currently being ratelimited. Please try again later.**", delete_after=10,)
             elif userjson["errors"][0]["status"] == 500:
-                return await ctx.send(f"<:h1cross:916006021909065728> **There was an internal server error. Please try again later.**")
+                return await ctx.send(f"<:h1cross:916006021909065728> **There was an internal server error. Please try again later.**", delete_after=10,)
             elif userjson["errors"][0]["status"] == 503:
-                return await ctx.send(f"<:h1cross:916006021909065728> **The HackerOne API is currently offline. Please try again later.**")
+                return await ctx.send(f"<:h1cross:916006021909065728> **The HackerOne API is currently offline. Please try again later.**", delete_after=10,)
         except KeyError:
             pass
 
-        if "default" in userjson["data"]["attributes"]["profile_picture"]["62x62"]:
-            userpic = "https://hackerone.com/assets/avatars/default-71a302d706457f3d3a31eb30fa3e73e6cf0b1d677b8fa218eaeaffd67ae97918.png"
-        else:
-            userpic = userjson["data"]["attributes"]["profile_picture"]["62x62"]
+        # User Info
+
+        user_name = userjson['data']['attributes']['name'] or "-"
+        user_rept = userjson["data"]["attributes"]["reputation"] or "-"
+        user_sigl = round((userjson["data"]["attributes"]["signal"] or 0), 2)
+        user_impt = round((userjson["data"]["attributes"]["impact"] or 0), 2)
+        user_bio = userjson["data"]["attributes"]["bio"] or "-"
+        user_web = userjson["data"]["attributes"]["website"] or "-"
+        user_avt = userjson["data"]["attributes"]["profile_picture"]["62x62"]
+        if ("default" in user_avt) or (len(user_avt) >= 2048):
+            user_avt = default_avatar
+        user_create = f"<t:{round(dp.parse(userjson['data']['attributes']['created_at']).timestamp())}:f>" or "-"
+
+        # Embed Creation
 
         embed = disnake.Embed(
-            title=f"HackerOne User",
+            title=f"HackerOne Profile",
             color=0x303136,
             timestamp=datetime.datetime.now(),
         )
 
         embed.set_author(
-            name=f"{userjson['data']['attributes']['name']} ({userjson['data']['attributes']['username']})",
+            name=f"{user_name} ({username})",
             url=f"https://hackerone.com/{username}",
-            icon_url=userpic,
+            icon_url=user_avt,
         )
 
         embed.add_field(
             name="Name",
-            value=f"{userjson['data']['attributes']['name']}",
+            value=f"{user_name}",
             inline=True,
         )
         embed.add_field(
@@ -82,36 +95,36 @@ class PrefixUser(commands.Cog):
         )
         embed.add_field(
             name="Reputation",
-            value=(userjson["data"]["attributes"]["reputation"] or "-"),
+            value=user_rept,
             inline=True,
         )
         embed.add_field(
             name="Signal",
-            value=round(userjson["data"]["attributes"]["signal"] or 0),
+            value=user_sigl,
             inline=True,
         )
         embed.add_field(
             name="Impact",
-            value=round(userjson["data"]["attributes"]["impact"] or 0),
+            value=user_impt,
             inline=True,
         )
         embed.add_field(
             name="Bio",
-            value=(userjson["data"]["attributes"]["bio"] or "-"),
+            value=user_bio,
             inline=False,
         )
         embed.add_field(
             name="Website",
-            value=(userjson["data"]["attributes"]["website"] or "-"),
+            value=user_web,
             inline=False,
         )
         embed.add_field(
             name="Joined",
-            value=(f"<t:{round(dp.parse(userjson['data']['attributes']['created_at']).timestamp())}:f>" or "-"),
+            value=user_create,
             inline=False,
         )
 
-        embed.set_thumbnail(url=userpic)
+        embed.set_thumbnail(url=user_avt)
 
         embed.set_footer(
             text=f"Requested by {ctx.author.name}",
