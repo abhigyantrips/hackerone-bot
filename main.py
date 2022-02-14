@@ -11,6 +11,12 @@ client = commands.Bot(
     command_prefix="!h1",
     help_command=None,
     strip_after_prefix=True,
+    allowed_mentions=disnake.AllowedMentions(
+        users=True,
+        everyone=False,
+        roles=False,
+        replied_user=True,
+    )
 )
 
 print("---------- BASIC COMMANDS ----------")
